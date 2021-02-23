@@ -1,3 +1,4 @@
+/*
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -38,7 +39,9 @@ public class PieChart {
         }
       }
 
-      XSSFDrawing drawing = sheet.createDrawingPatriarch();
+      XSSFDrawing drawing = sheet.create*/
+/**//*
+DrawingPatriarch();
       XSSFClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 0, 4, 10, 25);
 
       XSSFChart chart = drawing.createChart(anchor);
@@ -64,3 +67,4 @@ public class PieChart {
     }
   }
 }
+*/
