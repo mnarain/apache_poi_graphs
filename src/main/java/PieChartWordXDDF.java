@@ -10,6 +10,8 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.XWPFChart;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.xmlbeans.XmlCursor;
 
 import java.io.FileOutputStream;
 
@@ -32,6 +34,13 @@ public class PieChartWordXDDF {
 
     public static void main(String[] args) throws Exception {
         try (XWPFDocument document = new XWPFDocument()) {
+
+            
+
+            double inch = 1_440;
+            String[] headers = new String[]{"Norm", "Normnr", "Omschrijving", "Status"};
+
+
 
             // create the data
             String[] categories = new String[] { "Nog in te vullen", "Niet geïmplementeerd", "Deels geïmplementeerd","Geïmplementeerd","Geaccepteerd risico"};
