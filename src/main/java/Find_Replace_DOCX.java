@@ -1,33 +1,28 @@
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 import org.apache.poi.ooxml.POIXMLDocumentPart;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.util.CellReference;
-import org.apache.poi.util.Units;
 import org.apache.poi.xddf.usermodel.chart.*;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.xwpf.usermodel.*;
+import org.apache.poi.xwpf.usermodel.XWPFChart;
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+
+import java.io.FileOutputStream;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 //import org.apache.poi.xwpf.usermodel.XWPFTable;
 //import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 //import org.apache.poi.xwpf.usermodel.XWPFTableRow;
-
 /**
  * @author kishan.c.s 09-Feb-2016
  * Code to Find and replace content in docx
- *
  */
-
-import com.sun.media.sound.InvalidFormatException;
-import org.apache.xmlbeans.XmlCursor;
 
 public class Find_Replace_DOCX {
 
@@ -51,16 +46,17 @@ public class Find_Replace_DOCX {
             if (p != null) {
                 XWPFChart chart = generateDashboard(doc);
 
-                XWPFRun run = p.createRun();
+                // CODE HIERONDER GEEFT DIE WORD ERRORS
+//                XWPFRun run = p.createRun();
 
-                XmlCursor cursor = p.getCTP().newCursor();
-                XWPFParagraph newPara = doc.insertNewParagraph(cursor);
-                newPara.setAlignment (ParagraphAlignment.CENTER); // center
-                XWPFRun newParaRun = newPara.createRun();
-  /*              newParaRun.addPicture(new FileInputStream("./doc/bus.png"),XWPFDocument.PICTURE_TYPE_PNG,"bus.png,",Units.toEMU(200), Units.toEMU(200));
-                doc.removeBodyElement(doc.getPosOfParagraph(p));*/
-                newParaRun.addChart(doc.getRelationId(chart));
-                doc.removeBodyElement(doc.getPosOfParagraph(p));
+//                XmlCursor cursor = p.getCTP().newCursor();
+//                XWPFParagraph newPara = doc.insertNewParagraph(cursor);
+//                newPara.setAlignment (ParagraphAlignment.CENTER); // center
+//                XWPFRun newParaRun = newPara.createRun();
+//  /*              newParaRun.addPicture(new FileInputStream("./doc/bus.png"),XWPFDocument.PICTURE_TYPE_PNG,"bus.png,",Units.toEMU(200), Units.toEMU(200));
+//                doc.removeBodyElement(doc.getPosOfParagraph(p));*/
+//                newParaRun.addChart(doc.getRelationId(chart));
+//                doc.removeBodyElement(doc.getPosOfParagraph(p));
 
                // run.addChart(doc.getRelationId(chart));
                 // attach the chart here
@@ -150,28 +146,45 @@ public class Find_Replace_DOCX {
 
 
         // create the data
-        String[] categories = new String[]{"Nog in te vullen", "Niet geïmplementeerd", "Deels geïmplementeerd", "Geïmplementeerd", "Geaccepteerd risico"};
+        String[] categories = new String[]{"[TEST] Nog in te vullen", "[TEST] Niet geïmplementeerd", "[TEST] Deels geïmplementeerd", "[TEST] Geïmplementeerd", "[TEST] Geaccepteerd risico"};
         XDDFDataSource<String> cat = XDDFDataSourcesFactory.fromArray(categories, "controls");
         Integer[] valuesA = new Integer[]{30, 20, 5, 70, 2};
         XDDFNumericalDataSource<Integer> val = XDDFDataSourcesFactory.fromArray(valuesA, "controls", 0);
 
+        // Replace the existing chart instead of creating new chart
         // create the chart
-        XWPFChart chart = doc.createChart(15 * Units.EMU_PER_CENTIMETER, 10 * Units.EMU_PER_CENTIMETER);
-        chart.setTitleText("Controls");
+        // XWPFChart chart = doc.createChart(15 * Units.EMU_PER_CENTIMETER, 10 * Units.EMU_PER_CENTIMETER);
+
+        // Get the existing Pie3DChart
+        XWPFChart chart=null;
+        for (POIXMLDocumentPart part : doc.getRelations()) {
+            if (part instanceof XWPFChart) {
+                chart = (XWPFChart) part;
+                break;
+            }
+        }
+        chart.setTitleText("Controls 3");
+
+        List<XDDFChartData> chartSeries = chart.getChartSeries();
+        XDDFPie3DChartData data = (XDDFPie3DChartData) chartSeries.get(0);
+        XDDFChartData.Series series = data.getSeries(0);
+
+        // replace the existing data
+        series.replaceData(cat, val);
 
         // create chart data
-        XDDFChartData data = chart.createData(ChartTypes.PIE3D, null, null);
+//        XDDFChartData data = chart.createData(ChartTypes.PIE3D, null, null);
 
         // create series
         // if only one series do not vary colors for each bar
         //((XDDFBarChartData) data).setVaryColors(false);
-        XDDFChartData.Series series = data.addSeries(cat, val);
+//        XDDFChartData.Series series = data.addSeries(cat, val);
         // XDDFChart.setSheetTitle is buggy. It creates a Table but only half way and incomplete.
         // Excel cannot opening the workbook after creatingg that incomplete Table.
         // So updating the chart data in Word is not possible.
         //series.setTitle("a", chart.setSheetTitle("a", 1));
-        series.setTitle("Controls", setTitleInDataSheet(chart, "Controls", 1));
-        series.setShowLeaderLines(true);
+//        series.setTitle("Controls", setTitleInDataSheet(chart, "Controls", 1));
+//        series.setShowLeaderLines(true);
 			/*
 			   // if more than one series do vary colors of the series
 			   ((XDDFBarChartData)data).setVaryColors(true);
